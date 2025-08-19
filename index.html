@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ابن تيمية</title>
+    <link rel="stylesheet" href="index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#ffffff" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.sh/@google/genai@^1.15.0"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app-layout">
+      <aside id="sidebar">
+        <div class="sidebar-header">
+          <button id="new-chat-button" class="sidebar-button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1Z" clip-rule="evenodd" /></svg>
+            <span>محادثة جديدة</span>
+          </button>
+        </div>
+        <div class="sidebar-content">
+           <div class="sidebar-section" id="user-profile-section">
+              <p class="history-title">تخصيص</p>
+              <input type="text" id="user-name-input" placeholder="اكتب اسمك هنا...">
+           </div>
+           <div class="sidebar-section" id="inspiration-section">
+              <p class="history-title">إلهام يومي</p>
+               <button id="daily-question-button" class="sidebar-button">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a.75.75 0 0 1 .75.75v.518a2 2 0 0 0 0 3.464V9.25a.75.75 0 0 1-1.5 0V6.732a2 2 0 0 0 0-3.464V2.75A.75.75 0 0 1 10 2ZM10 12.25a.75.75 0 0 1 .75.75v3.25a.75.75 0 0 1-1.5 0v-3.25a.75.75 0 0 1 .75-.75Z" /><path fill-rule="evenodd" d="M15.994 4.766a.75.75 0 0 1 .223.998l-3.334 6.666a.75.75 0 0 1-1.334 0L8.216 5.764a.75.75 0 1 1 1.334-.666l2.784 5.567 2.66-5.32a.75.75 0 0 1 .998-.222Z" clip-rule="evenodd" /></svg>
+                 <span>تعلم مسألة يومية</span>
+               </button>
+               <button id="wise-saying-button" class="sidebar-button">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 3.5a.75.75 0 0 0-1.5 0V5h-2a.75.75 0 0 0 0 1.5h2v1.25a.75.75 0 0 0 1.5 0V6.5h2a.75.75 0 0 0 0-1.5h-2V3.5Z" /><path fill-rule="evenodd" d="M3.25 5.5A2.25 2.25 0 0 0 1 7.75v6.5A2.25 2.25 0 0 0 3.25 16.5h13.5A2.25 2.25 0 0 0 19 14.25v-6.5A2.25 2.25 0 0 0 16.75 5.5H3.25Zm1.5 2.75a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5H5.5a.75.75 0 0 1-.75-.75Zm.75 3.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5h-6Z" clip-rule="evenodd" /></svg>
+                  <span>قول حكيم</span>
+              </button>
+              <button id="advice-button" class="sidebar-button">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm-.75-4.75a.75.75 0 0 0 1.5 0V8.5a.75.75 0 0 0-1.5 0v4.75ZM10 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" /></svg>
+                  <span>انصحني نصيحة</span>
+              </button>
+              <button id="sahaba-story-button" class="sidebar-button">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3.5 3.75a.25.25 0 0 1 .25-.25h12.5a.25.25 0 0 1 .25.25v12.5a.25.25 0 0 1-.25.25H3.75a.25.25 0 0 1-.25-.25V3.75ZM4.5 15.5h11V4.5h-11v11Z" /><path d="M6.637 12.043a.75.75 0 0 1 .63.961 3.003 3.003 0 0 0 5.465 0 .75.75 0 1 1 1.26.802 4.503 4.503 0 0 1-8.192 0 .75.75 0 0 1 .837-.961ZM8.5 7.5A.5.5 0 0 1 9 7h2a.5.5 0 0 1 0 1H9a.5.5 0 0 1-.5-.5Z" /></svg>
+                  <span>أثر الصحابة</span>
+              </button>
+              <button id="prophet-scene-button" class="sidebar-button">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="m3.188 12.143 1.504 1.504a.75.75 0 0 0 1.06 0l2.255-2.254a.75.75 0 1 0-1.06-1.06L5.44 11.84l-1.19-1.19a.75.75 0 0 0-1.062 1.06Z" /><path d="M15.5 3.5a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3.5ZM14 16.5H6a.5.5 0 0 1 0-1h8a.5.5 0 0 1 0 1Z" /></svg>
+                  <span>مشهد من السيرة</span>
+              </button>
+              <button id="wonder-story-button" class="sidebar-button">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.868 2.884c.321.023.635.096.932.223l.112.047c.367.155.695.362.98.618l.01.008c.433.385.765.84.99 1.347l.01.022c.33.71.495 1.49.495 2.311V10a7 7 0 1 1-14 0V7.5c0-1.256.333-2.433.918-3.482l.024-.044c.37-.668.86-1.246 1.432-1.724l.04-.033c.365-.307.765-.548 1.18-.72l.048-.02c.42-.173.865-.286 1.324-.335l.092-.008c.327-.023.66-.023 1 0Zm-1.303.665c-.24.01-.475.05-.702.115l-.06.017c-.328.09-.64.23-.926.41l-.034.022c-.4.26-.75.59-1.033.97l-.02.027c-.42.56-.73 1.25-.89 2.01l-.014.065c-.2.9-.3 1.88-.3 2.89V10a6 6 0 1 0 12 0V7.5c0-.77-.15-1.5-.44-2.18l-.01-.023c-.22-.48-.53-.91-.91-1.27l-.01-.008c-.27-.24-.58-.44-.92-.59l-.11-.047c-.28-.12-.58-.19-.88-.21l-.09-.008c-.24-.01-.48-.01-.72 0Z" clip-rule="evenodd" /></svg>
+                  <span>قصة عجيبة</span>
+              </button>
+           </div>
+           <nav id="chat-history" class="sidebar-section">
+            <p class="history-title">السجل</p>
+            <ul id="history-list"></ul>
+           </nav>
+        </div>
+      </aside>
+
+      <div id="main-content">
+        <div id="app-container">
+          <header>
+            <button id="menu-toggle" aria-label="فتح القائمة">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M3 6.75A.75.75 0 013.75 6h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 6.75zM3 12a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 12zm0 5.25a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg>
+            </button>
+            <div class="header-content">
+              <img src="icons/icon.png" alt="شعار ابن تيمية" class="header-icon" />
+              <div class="header-text">
+                <h1>ابن تيمية</h1>
+              </div>
+            </div>
+            <button id="theme-toggle" aria-label="تبديل الوضع">
+              <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.106a.75.75 0 0 1 0 1.06l-1.591 1.59a.75.75 0 1 1-1.06-1.06l1.59-1.59a.75.75 0 0 1 1.061 0ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.894 17.894a.75.75 0 0 1-1.06 0l-1.59-1.591a.75.75 0 1 1 1.06-1.06l1.591 1.59a.75.75 0 0 1 0 1.061ZM12 18a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.894 6.106a.75.75 0 0 1 1.06 0l1.59 1.591a.75.75 0 1 1-1.06 1.06L6.834 7.166a.75.75 0 0 1 0-1.06ZM3 12a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 12ZM6.106 17.894a.75.75 0 0 1 0-1.06l1.591-1.59a.75.75 0 1 1 1.06 1.06l-1.59 1.59a.75.75 0 0 1-1.061 0Z"/></svg>
+              <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.981A10.503 10.503 0 0 1 18 18a10.5 10.5 0 0 1-10.5-10.5c0-1.25.223-2.454.622-3.572a.75.75 0 0 1 .819-.162Z" clip-rule="evenodd" /></svg>
+            </button>
+          </header>
+          <main id="chat-container">
+            <!-- Messages will be appended here -->
+            <div id="welcome-screen">
+                <div class="welcome-header">
+                    <img src="icons/icon.png" alt="شعار ابن تيمية" class="welcome-icon" />
+                    <h1>ابن تيمية</h1>
+                    <p>السلام عليكم ورحمة الله وبركاته. أنا مساعدك للإجابة على المسائل الشرعية في ضوء الكتاب والسنة بفهم سلف الأمة. اخبرني ما هو سؤالك؟</p>
+                </div>
+                <div class="suggestions">
+                    <button class="suggestion-card">ما هو التوحيد وما هي أقسامه؟</button>
+                    <button class="suggestion-card">ما حكم ترك الصلاة؟</button>
+                    <button class="suggestion-card">اشرح أركان الإيمان</button>
+                    <button class="suggestion-card">ما حكم الاحتفال بالمولد النبوي؟</button>
+                </div>
+            </div>
+          </main>
+          <footer>
+            <form id="chat-form">
+                <div class="input-container">
+                    <textarea
+                        id="chat-input"
+                        placeholder="اكتب سؤالك هنا..."
+                        aria-label="اكتب سؤالك هنا"
+                        rows="1"
+                    ></textarea>
+                    <button type="submit" aria-label="إرسال">
+                        <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        >
+                        <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+                        </svg>
+                    </button>
+                </div>
+            </form>
+          </footer>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="index.tsx"></script>
+  </body>
+</html>

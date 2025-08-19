@@ -1,0 +1,21 @@
+{
+  "name": "ابن تيمية",
+  "short_name": "ابن تيمية",
+  "description": "مساعد ذكاء اصطناعي للإجابة على المسائل الشرعية",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#18222d",
+  "theme_color": "#212d3b",
+  "icons": [
+    {
+      "src": "icons/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
