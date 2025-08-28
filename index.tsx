@@ -46,25 +46,30 @@ const chatForm = document.getElementById('chat-form') as HTMLFormElement;
 const chatInput = document.getElementById('chat-input') as HTMLTextAreaElement;
 const submitButton = chatForm.querySelector('button[type="submit"]') as HTMLButtonElement;
 const welcomeScreen = document.getElementById('welcome-screen') as HTMLElement;
-const suggestionButtons = document.querySelectorAll('.suggestion-card');
+const suggestionButtons = document.querySelectorAll('.suggestion-button');
 const sidebar = document.getElementById('sidebar') as HTMLElement;
 const sidebarToggleButton = document.getElementById('sidebar-toggle') as HTMLButtonElement;
 const menuToggleButton = document.getElementById('menu-toggle') as HTMLButtonElement;
 const newChatButton = document.getElementById('new-chat-button') as HTMLButtonElement;
+const headerShareButton = document.getElementById('header-share-button') as HTMLButtonElement;
 const historyListContainer = document.getElementById('history-list-container') as HTMLDivElement;
 const userNameInput = document.getElementById('user-name-input') as HTMLInputElement;
 const increaseFontButton = document.getElementById('increase-font') as HTMLButtonElement;
 const decreaseFontButton = document.getElementById('decrease-font') as HTMLButtonElement;
+const headerTitle = document.getElementById('header-title') as HTMLHeadingElement;
+
+// Sidebar Tabs
+const sidebarTabs = document.querySelectorAll('.sidebar-tab');
+const tabPanels = document.querySelectorAll('.tab-panel');
 
 // Font Selector Elements
 const fontSelectorToggle = document.getElementById('font-selector-toggle') as HTMLButtonElement;
 const fontSelectorPopup = document.getElementById('font-selector-popup') as HTMLElement;
 const fontOptionButtons = document.querySelectorAll('.font-option-button') as NodeListOf<HTMLButtonElement>;
 
-const promptSuggestionsToggleButton = document.getElementById('prompt-suggestions-toggle') as HTMLButtonElement;
-const promptSuggestionsPopup = document.getElementById('prompt-suggestions-popup') as HTMLElement;
-const popupSuggestionButtons = document.querySelectorAll('.popup-suggestion-button');
-const popupSuggestionTextButtons = document.querySelectorAll('.popup-suggestion-text-button');
+// Quick Suggestions
+const quickSuggestionsContainer = document.getElementById('quick-suggestions-container') as HTMLElement;
+
 const userMessageTemplate = document.getElementById('user-message-template') as HTMLTemplateElement;
 const aiMessageTemplate = document.getElementById('ai-message-template') as HTMLTemplateElement;
 
@@ -78,6 +83,19 @@ const deleteConfirmModal = document.getElementById('delete-confirm-modal') as HT
 const cancelDeleteBtn = document.getElementById('cancel-delete-btn') as HTMLButtonElement;
 const confirmDeleteBtn = document.getElementById('confirm-delete-btn') as HTMLButtonElement;
 
+// Share Chat Modal Elements
+const shareChatModal = document.getElementById('share-chat-modal') as HTMLElement;
+const cancelShareBtn = document.getElementById('cancel-share-btn') as HTMLButtonElement;
+const exportTxtBtn = document.getElementById('export-txt-btn') as HTMLButtonElement;
+const exportMdBtn = document.getElementById('export-md-btn') as HTMLButtonElement;
+const exportPdfBtn = document.getElementById('export-pdf-btn') as HTMLButtonElement;
+const exportImgBtn = document.getElementById('export-img-btn') as HTMLButtonElement;
+
+// Settings Modal Elements
+const settingsModal = document.getElementById('settings-modal') as HTMLElement;
+const headerSettingsButton = document.getElementById('header-settings-button') as HTMLButtonElement;
+const closeSettingsBtn = document.getElementById('close-settings-btn') as HTMLButtonElement;
+
 
 // --- State Management ---
 let chatHistory: Omit<ChatSession, 'chat'>[] = [];
@@ -86,10 +104,82 @@ let currentChatInstance: Chat | null = null;
 let userName: string | null = null;
 let chatToDeleteId: string | null = null; // To store which chat we're about to delete
 
+// --- Quick Suggestions Logic ---
+async function generateAndRenderSuggestions() {
+    const currentSession = chatHistory.find(s => s.id === currentChatId);
+    if (!currentSession || currentSession.messages.length > 0) {
+        updateSuggestionsVisibility();
+        return;
+    }
+
+    // Prevent re-fetching if suggestions are already there or loading
+    if (quickSuggestionsContainer.querySelector('.suggestion-pill, .dot-flashing-wrapper')) {
+        return;
+    }
+    
+    quickSuggestionsContainer.innerHTML = `<div class="dot-flashing-wrapper"><div class="dot-flashing"></div></div>`;
+    updateSuggestionsVisibility();
+
+    try {
+        const prompt = "اقترح 5 أسئلة قصيرة وملهمة يمكن للمستخدم أن يسألها. يجب أن تكون الأسئلة حول مواضيع إسلامية متنوعة مثل العقيدة، الفقه، السيرة، والنصائح الإيمانية. أجب بصيغة JSON حصراً، على شكل مصفوفة من النصوص. مثال: [\"ما هو التوحيد؟\", \"نصيحة لزيادة الإيمان.\"]";
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+        });
+        
+        let suggestions: string[] = [];
+        try {
+            const jsonString = response.text.replace(/```json|```/g, '').trim();
+            const parsed = JSON.parse(jsonString);
+            if (Array.isArray(parsed) && parsed.every(s => typeof s === 'string')) {
+                suggestions = parsed;
+            } else {
+                throw new Error("Parsed data is not an array of strings.");
+            }
+        } catch (parseError) {
+            console.error("Failed to parse suggestions JSON, using fallback.", parseError);
+            suggestions = [
+                "ما هو التوحيد وما هي أقسامه؟",
+                "ما حكم ترك الصلاة؟",
+                "اشرح أركان الإيمان",
+                "انصحني نصيحة إيمانية",
+                "قصة عن أحد الصحابة"
+            ];
+        }
+
+        quickSuggestionsContainer.innerHTML = '';
+        suggestions.slice(0, 5).forEach(text => { // Ensure only 5 are shown
+            const button = document.createElement('button');
+            button.className = 'suggestion-pill';
+            button.textContent = text;
+            quickSuggestionsContainer.appendChild(button);
+        });
+
+    } catch (error) {
+        console.error("Error generating suggestions:", error);
+        // On API error, clear the loader and hide the container.
+        quickSuggestionsContainer.innerHTML = '';
+    } finally {
+        updateSuggestionsVisibility();
+    }
+}
+
+function updateSuggestionsVisibility() {
+    const currentSession = chatHistory.find(s => s.id === currentChatId);
+    if (currentSession && currentSession.messages.length === 0 && chatInput.value.trim() === '' && quickSuggestionsContainer.children.length > 0) {
+        quickSuggestionsContainer.classList.add('visible');
+    } else {
+        quickSuggestionsContainer.classList.remove('visible');
+    }
+}
+
+
 // --- Auto-growing Textarea ---
 chatInput.addEventListener('input', () => {
   chatInput.style.height = 'auto';
   chatInput.style.height = `${chatInput.scrollHeight}px`;
+  updateSuggestionsVisibility();
 });
 
 // --- Sidebar Toggle (Desktop) ---
@@ -100,6 +190,24 @@ sidebarToggleButton.addEventListener('click', () => {
 // --- Sidebar Toggle (Mobile) ---
 menuToggleButton.addEventListener('click', () => {
     sidebar.classList.toggle('open');
+});
+
+// --- Sidebar Tabs Logic ---
+sidebarTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        const targetTab = tab.getAttribute('data-tab');
+
+        sidebarTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        tabPanels.forEach(panel => {
+            if (panel.id === `${targetTab}-panel`) {
+                panel.classList.add('active');
+            } else {
+                panel.classList.remove('active');
+            }
+        });
+    });
 });
 
 
@@ -155,6 +263,28 @@ function getModelConfig() {
 *   **أبو محمد البربهاري:** شرح كتاب السنة.
 *   **ابن النحاس الدمشقي:** مشارع الأشواق إلى مصارع العشاق, تنبيه الغافلين.
 *   **محمد بن عبد الوهاب:** كتاب التوحيد, كشف الشبهات, ثلاثة الأصول, القواعد الأربع, نواقض الإسلام, أصول الإيمان, فضل الإسلام, مسائل الجاهلية.
+
+**المنظومات الشعرية للعلوم عند اهل السنة والجماعة:**
+*   منظومة قواعد أهل السنة للزنجاني.
+*   منظومة أبي الخطاب المقرئ.
+*   عقيدة محمد بن طاهر المقدسي.
+*   دالية الكلوذاني.
+*   منظومة عروس القصائد في شموس العقائد.
+*   منظومة الحسن بن جعفر الهاشمي.
+*   منظومة بديع الزمان الهمذاني في مدح الصحابة والرد على من طعن فيهم.
+*   منظومة الصرصري في الرد على الرافضة.
+*   منظومة القونوي في الرد على القدري.
+*   منظومة اليافعي الشافعي في الرد على السبكي.
+*   منظومة جلاء الفصوص عن فهم كل تقي مخصوص.
+*   ونية القحطاني.
+*   نونية ابن القيم.
+*   ألفية مالك.
+
+**القدرات اللغوية والقرآنية:**
+- لديك معرفة واسعة بعلوم النحو والإعراب والشعر العربي.
+- يمكنك فهم واستخدام المنظومات الشعرية التعليمية، وتحليل البحور الشعرية.
+- يمكنك الرد بالشعر المنظوم ذي القافية الموحدة عند الطلب.
+- لديك إلمام بعلوم القرآن والتجويد.
 
 **تعليمات إضافية:**
 - كن واضحاً ومبنياً على الأدلة.
@@ -317,9 +447,12 @@ function loadChat(id: string) {
     currentChatInstance = createNewChatInstance();
 
     chatContainer.innerHTML = '';
+    headerTitle.textContent = session.title;
+    quickSuggestionsContainer.innerHTML = ''; // Clear previous suggestions
     
     if (session.messages.length === 0) {
         welcomeScreen.style.display = 'flex';
+        generateAndRenderSuggestions();
     } else {
         welcomeScreen.style.display = 'none';
         session.messages.forEach(msg => {
@@ -328,6 +461,7 @@ function loadChat(id: string) {
     }
     
     renderHistory();
+    updateSuggestionsVisibility();
     if (window.innerWidth <= 768) sidebar.classList.remove('open');
 }
 
@@ -340,6 +474,7 @@ function createNewChat() {
         category: 'uncategorized' as ChatCategory,
     };
     chatHistory.push(newSession);
+    headerTitle.textContent = 'محادثة جديدة';
     saveHistory();
     loadChat(newId);
 }
@@ -475,16 +610,42 @@ async function handleShareAsPdf(content: string, title: string, triggerButton: H
 }
 
 async function handleShareAsImage(contentHtml: string, triggerButton: HTMLButtonElement) {
-    if (triggerButton.disabled) return;
-    const originalContent = triggerButton.innerHTML;
-    triggerButton.disabled = true;
-    triggerButton.innerHTML = `<div class="mini-loader"></div> <span>جاري التجهيز...</span>`;
+    // Hide the little share menu it was triggered from
+    triggerButton.closest('.share-menu')?.classList.remove('visible');
+
+    const previewModal = document.getElementById('image-preview-modal') as HTMLElement;
+    const loader = previewModal.querySelector('.modal-loader') as HTMLElement;
+    const previewContainer = previewModal.querySelector('.image-preview-container') as HTMLElement;
+    const previewImg = previewModal.querySelector('#preview-image-tag') as HTMLImageElement;
+    const modalActions = previewModal.querySelector('.modal-actions') as HTMLElement;
+    const downloadBtn = document.getElementById('download-preview-btn') as HTMLButtonElement;
+    const shareBtn = document.getElementById('share-preview-btn') as HTMLButtonElement;
+    const closeBtn = document.getElementById('close-preview-btn') as HTMLButtonElement;
+
+    // Reset and show modal
+    previewModal.classList.add('visible');
+    loader.style.display = 'flex';
+    previewContainer.style.display = 'none';
+    modalActions.style.display = 'none';
 
     let generator = document.getElementById('story-generator');
     if (generator) generator.remove();
+    let objectUrl: string | null = null;
+
+    const hideModal = () => {
+        previewModal.classList.remove('visible');
+        if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+            objectUrl = null;
+        }
+        // Detach event listeners to prevent memory leaks and multiple triggers
+        downloadBtn.onclick = null;
+        shareBtn.onclick = null;
+        closeBtn.onclick = null;
+        previewModal.onclick = null;
+    };
 
     try {
-        // 1. Clean content and generate title
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = contentHtml;
         const textContent = (tempDiv.textContent || '').replace(/هل تود.*?$/, '').trim();
@@ -503,22 +664,297 @@ async function handleShareAsImage(contentHtml: string, triggerButton: HTMLButton
             console.warn("Could not generate title, using default.", titleError);
         }
 
-        // 2. Create generator element
         generator = document.createElement('div');
         generator.id = 'story-generator';
         generator.innerHTML = `
             <div class="story-header"><h1>${title}</h1></div>
-            <div class="story-content">${markdownToHtml(textContent)}</div>
+            <div class="story-content-wrapper"><div class="message">${contentHtml}</div></div>
             <div class="story-footer">تم إنشاؤه بواسطة تطبيق القيم</div>
         `;
         generator.style.fontFamily = getComputedStyle(document.body).getPropertyValue('--font-family');
         document.body.appendChild(generator);
 
-        // 3. Generate image blob
         const { default: html2canvas } = await import('https://esm.sh/html2canvas@1.4.1');
         const canvas = await html2canvas(generator, {
             useCORS: true,
             backgroundColor: null,
+        });
+        
+        const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+        
+        if (!blob) {
+            throw new Error('فشل في إنشاء الصورة (canvas.toBlob returned null).');
+        }
+
+        objectUrl = URL.createObjectURL(blob);
+        previewImg.src = objectUrl;
+
+        loader.style.display = 'none';
+        previewContainer.style.display = 'block';
+        modalActions.style.display = 'flex';
+        
+        const sanitizedTitle = title.replace(/[\\/:"*?<>|]/g, '').replace(/\s+/g, '_');
+        const fileName = `${sanitizedTitle}.jpg`;
+
+        downloadBtn.onclick = () => {
+            downloadFile(blob, fileName);
+            hideModal();
+        };
+
+        const file = new File([blob], fileName, { type: 'image/jpeg' });
+        
+        if (navigator.share && (navigator as any).canShare({ files: [file] })) {
+            shareBtn.style.display = 'inline-flex';
+            shareBtn.onclick = async () => {
+                try {
+                    await navigator.share({ files: [file], title: title });
+                } catch (error) {
+                    if ((error as DOMException).name !== 'AbortError') {
+                         console.error('Error sharing image:', error);
+                         alert('حدث خطأ أثناء محاولة المشاركة.');
+                    }
+                } finally {
+                    hideModal();
+                }
+            };
+        } else {
+            shareBtn.style.display = 'none';
+        }
+
+        closeBtn.onclick = hideModal;
+        previewModal.onclick = (e) => {
+            if (e.target === previewModal) {
+                hideModal();
+            }
+        };
+    } catch(e) {
+        console.error("Error generating image:", e);
+        alert('حدث خطأ أثناء إنشاء الصورة.');
+        hideModal();
+    } finally {
+        generator?.remove();
+    }
+}
+
+
+// --- Full Chat Export ---
+function showShareModal() {
+    if (!currentChatId) {
+        alert('يرجى تحديد محادثة لمشاركتها.');
+        return;
+    }
+    const currentSession = chatHistory.find(s => s.id === currentChatId);
+    if (!currentSession || currentSession.messages.length === 0) {
+        alert('لا توجد رسائل في هذه المحادثة لمشاركتها.');
+        return;
+    }
+    shareChatModal.classList.add('visible');
+}
+
+function hideShareModal() {
+    shareChatModal.classList.remove('visible');
+}
+
+function handleExportAsTxt() {
+    const currentSession = chatHistory.find(s => s.id === currentChatId);
+    if (!currentSession) return;
+
+    let chatContent = `محادثة من تطبيق القيم\n`;
+    chatContent += `العنوان: ${currentSession.title}\n`;
+    chatContent += `تاريخ المشاركة: ${new Date().toLocaleString('ar-EG')}\n`;
+    chatContent += '============================================\n\n';
+
+    currentSession.messages.forEach(message => {
+        const sender = message.sender === 'user' ? 'المستخدم' : 'المساعد';
+        const content = message.content;
+        chatContent += `[ ${sender} ]\n${content}\n\n`;
+        chatContent += '----------------------------------------\n\n';
+    });
+    
+    const sanitizedTitle = currentSession.title.replace(/[\\/:"*?<>|]/g, '').replace(/\s+/g, '_');
+    const fileName = `${sanitizedTitle}.txt`;
+
+    const blob = new Blob([chatContent], { type: 'text/plain;charset=utf-8' });
+    
+    downloadFile(blob, fileName);
+    hideShareModal();
+}
+
+function handleExportAsMd() {
+    const currentSession = chatHistory.find(s => s.id === currentChatId);
+    if (!currentSession) return;
+
+    let markdownContent = `# ${currentSession.title}\n\n`;
+    markdownContent += `**تاريخ التصدير:** ${new Date().toLocaleString('ar-EG')}\n\n`;
+    markdownContent += '---\n\n';
+
+    currentSession.messages.forEach(message => {
+        const sender = message.sender === 'user' ? 'المستخدم' : 'المساعد';
+        const content = message.content;
+        markdownContent += `**[ ${sender} ]**\n\n${content}\n\n`;
+        markdownContent += '---\n\n';
+    });
+
+    const sanitizedTitle = currentSession.title.replace(/[\\/:"*?<>|]/g, '').replace(/\s+/g, '_');
+    const fileName = `${sanitizedTitle}.md`;
+
+    const blob = new Blob([markdownContent], { type: 'text/markdown;charset=utf-8' });
+    downloadFile(blob, fileName);
+    hideShareModal();
+}
+
+async function handleFullChatExportAsPdf() {
+    const currentSession = chatHistory.find(s => s.id === currentChatId);
+    if (!currentSession) return;
+
+    exportPdfBtn.disabled = true;
+    const originalBtnContent = exportPdfBtn.innerHTML;
+    exportPdfBtn.classList.add('loading');
+    exportPdfBtn.innerHTML = `<div class="mini-loader"></div> <span>جاري إنشاء PDF...</span>`;
+
+    try {
+        const { default: html2pdf } = await import('https://esm.sh/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js');
+
+        const printContainer = document.createElement('div');
+        printContainer.style.direction = 'rtl';
+        printContainer.style.fontFamily = getComputedStyle(document.body).getPropertyValue('--font-family');
+
+        // Filter AI messages, clean them, and join them into a single article.
+        const articleContent = currentSession.messages
+            .filter(message => message.sender === 'ai')
+            .map(message => message.content.replace(/هل تود.*?$/, '').trim())
+            .join('<br><hr style="border:0; border-top: 1px solid #2a5c55; margin: 2rem 0;"><br>');
+
+        let contentHtml = `
+            <style>
+                body { 
+                    background-color: #0a3832; 
+                    color: #f5eeda; 
+                    font-size: 15px; 
+                    line-height: 1.8; 
+                }
+                .page-container { padding: 1.25in 1in; }
+                h1 { 
+                    color: #e6c883; 
+                    text-align: center; 
+                    border-bottom: 1px solid #2a5c55; 
+                    padding-bottom: 20px; 
+                    margin-bottom: 10px;
+                    font-size: 2.2rem;
+                }
+                .meta { 
+                    text-align: center; 
+                    color: #a98b4f; 
+                    margin-bottom: 40px; 
+                    font-size: 12px;
+                }
+                .article-body {
+                    text-align: justify;
+                }
+                ul, ol { 
+                    padding-right: 25px; 
+                    margin-top: 1rem;
+                    margin-bottom: 1rem;
+                }
+                strong { 
+                    color: #e6c883; 
+                    font-weight: bold;
+                }
+                br { 
+                    display: block; 
+                    content: ""; 
+                    margin: 12px 0; 
+                }
+            </style>
+            <div class="page-container">
+                <h1>${currentSession.title}</h1>
+                <p class="meta">تم التصدير بتاريخ: ${new Date().toLocaleString('ar-EG')}</p>
+                <div class="article-body">
+                    ${markdownToHtml(articleContent)}
+                </div>
+            </div>
+        `;
+
+        printContainer.innerHTML = contentHtml;
+        
+        const sanitizedTitle = currentSession.title.replace(/[\\/:"*?<>|]/g, '').replace(/\s+/g, '_');
+
+        await html2pdf().from(printContainer).set({
+            margin: 0,
+            filename: `${sanitizedTitle}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, backgroundColor: '#0a3832' },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        }).save();
+
+    } catch(e) {
+        console.error("Error generating full chat PDF:", e);
+        alert('حدث خطأ أثناء إنشاء ملف PDF.');
+    } finally {
+        exportPdfBtn.disabled = false;
+        exportPdfBtn.classList.remove('loading');
+        exportPdfBtn.innerHTML = originalBtnContent;
+        hideShareModal();
+    }
+}
+
+async function handleFullChatExportAsImage() {
+    const currentSession = chatHistory.find(s => s.id === currentChatId);
+    if (!currentSession) return;
+    
+    const title = prompt("أدخل عنواناً للصورة:", currentSession.title);
+    if (title === null) return; // User cancelled
+
+    exportImgBtn.disabled = true;
+    const originalBtnContent = exportImgBtn.innerHTML;
+    exportImgBtn.classList.add('loading');
+    exportImgBtn.innerHTML = `<div class="mini-loader"></div> <span>جاري إنشاء الصورة...</span>`;
+
+    const generator = document.createElement('div');
+    generator.id = 'chat-image-generator';
+
+    try {
+        const { default: html2canvas } = await import('https://esm.sh/html2canvas@1.4.1');
+        
+        let contentHtml = `<div class="chat-image-header"><h1>${title}</h1></div>`;
+        contentHtml += `<div class="chat-image-body">`;
+
+        currentSession.messages.forEach(message => {
+            let sourcesHtml = '';
+            if (message.sender === 'ai' && message.sources && message.sources.length > 0) {
+                sourcesHtml += `<div class="message-sources"><h4 class="sources-title">المصادر:</h4><ol class="sources-list">`;
+                message.sources.forEach(source => {
+                    if (source.web && source.web.uri) {
+                        let hostname = source.web.uri;
+                        try {
+                           hostname = new URL(source.web.uri).hostname.replace(/^www\./, '');
+                        } catch(e) { /* use original uri */ }
+                        sourcesHtml += `<li><a href="${source.web.uri}" target="_blank"><span class="source-title">${source.web.title || source.web.uri}</span><span class="source-uri">${hostname}</span></a></li>`;
+                    }
+                });
+                sourcesHtml += `</ol></div>`;
+            }
+
+            contentHtml += `
+                <div class="chat-image-message-wrapper ${message.sender}">
+                    <div class="chat-image-message-content">
+                        ${markdownToHtml(message.content)}
+                        ${sourcesHtml}
+                    </div>
+                </div>
+            `;
+        });
+
+        contentHtml += `</div>`;
+        contentHtml += `<div class="chat-image-footer">تم إنشاؤه بواسطة تطبيق القيم</div>`;
+        
+        generator.innerHTML = contentHtml;
+        document.body.appendChild(generator);
+
+        const canvas = await html2canvas(generator, {
+            useCORS: true,
+            backgroundColor: null, // Use the element's background
+            scale: 2, // For higher resolution
         });
         
         const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
@@ -527,38 +963,18 @@ async function handleShareAsImage(contentHtml: string, triggerButton: HTMLButton
             throw new Error('فشل في إنشاء الصورة (canvas.toBlob returned null).');
         }
 
-        const file = new File([blob], 'share.png', { type: 'image/png' });
-        
-        // 4. Attempt to share, with download fallback
-        if (navigator.share && (navigator as any).canShare({ files: [file] })) {
-            try {
-                await navigator.share({
-                    files: [file],
-                    title: title,
-                });
-            } catch (error) {
-                if ((error as DOMException).name === 'NotAllowedError' || (error as DOMException).name === 'AbortError') {
-                    console.warn('Share failed, falling back to download:', error);
-                    alert('فشلت المشاركة المباشرة. سيتم تنزيل الملف بدلاً من ذلك.');
-                    downloadFile(blob, 'share.png');
-                } else {
-                    console.error('Error sharing image:', error);
-                    alert('حدث خطأ أثناء محاولة المشاركة.');
-                }
-            }
-        } else {
-            console.warn('Web Share API cannot share this file, falling back to download.');
-            alert('المشاركة غير مدعومة. سيتم تنزيل الملف بدلاً من ذلك.');
-            downloadFile(blob, 'share.png');
-        }
+        const sanitizedTitle = title.replace(/[\\/:"*?<>|]/g, '').replace(/\s+/g, '_');
+        downloadFile(blob, `${sanitizedTitle}.png`);
 
     } catch(e) {
         console.error("Error generating image:", e);
         alert('حدث خطأ أثناء إنشاء الصورة.');
     } finally {
-        generator?.remove();
-        triggerButton.disabled = false;
-        triggerButton.innerHTML = originalContent;
+        generator.remove();
+        exportImgBtn.disabled = false;
+        exportImgBtn.classList.remove('loading');
+        exportImgBtn.innerHTML = originalBtnContent;
+        hideShareModal();
     }
 }
 
@@ -581,6 +997,7 @@ function appendMessage(content: string, sender: 'user' | 'ai', sources?: WebGrou
   }
 
   if (sender === 'ai' && content !== 'loading') {
+    const messageDiv = messageWrapper.querySelector('.message') as HTMLElement;
     const copyButton = messageClone.querySelector('.copy-button') as HTMLButtonElement;
     const [copyIcon, checkIcon] = copyButton.querySelectorAll('svg');
 
@@ -613,7 +1030,14 @@ function appendMessage(content: string, sender: 'user' | 'ai', sources?: WebGrou
     };
 
     const shareImageButton = messageClone.querySelector('.share-image') as HTMLButtonElement;
-    shareImageButton.onclick = () => handleShareAsImage(messageContent.innerHTML, shareImageButton);
+    shareImageButton.onclick = () => {
+         // Clone the node to avoid modifying the original message
+        const contentToShare = messageDiv.cloneNode(true) as HTMLElement;
+        // Remove interactive elements that shouldn't be in the image
+        contentToShare.querySelector('.message-actions')?.remove();
+        contentToShare.querySelector('.share-menu')?.remove();
+        handleShareAsImage(contentToShare.innerHTML, shareImageButton);
+    };
 
     // Add sources
     if (sources && sources.length > 0) {
@@ -625,37 +1049,44 @@ function appendMessage(content: string, sender: 'user' | 'ai', sources?: WebGrou
         sourcesTitle.textContent = 'المصادر:';
         sourcesContainer.appendChild(sourcesTitle);
 
-        const sourcesList = document.createElement('ul');
+        const sourcesList = document.createElement('ol');
         sourcesList.className = 'sources-list';
         
-        sources.forEach((source, index) => {
+        sources.forEach((source) => {
             if (source.web && source.web.uri) {
                 const li = document.createElement('li');
                 const a = document.createElement('a');
                 a.href = source.web.uri;
-                a.textContent = source.web.title || source.web.uri;
                 a.target = '_blank';
                 a.rel = 'noopener noreferrer';
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'source-title';
+                titleSpan.textContent = source.web.title || source.web.uri;
                 
-                const sourceNumber = document.createElement('span');
-                sourceNumber.className = 'source-number';
-                sourceNumber.textContent = `${index + 1}`;
+                const uriSpan = document.createElement('span');
+                uriSpan.className = 'source-uri';
+                try {
+                    uriSpan.textContent = new URL(source.web.uri).hostname.replace(/^www\./, '');
+                } catch(e) {
+                    uriSpan.textContent = source.web.uri;
+                }
                 
-                li.appendChild(sourceNumber);
+                a.appendChild(titleSpan);
+                a.appendChild(uriSpan);
                 li.appendChild(a);
                 sourcesList.appendChild(li);
             }
         });
 
         if (sourcesList.hasChildNodes()) {
-            messageWrapper.querySelector('.message')?.appendChild(sourcesContainer);
-            sourcesContainer.appendChild(sourcesList);
+            messageDiv.appendChild(sourcesContainer);
         }
     }
   }
 
   chatContainer.appendChild(messageClone);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+  chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
 
   // The element to return for streaming update is the content div of the last appended element.
   return chatContainer.lastElementChild!.querySelector('.message-content') as HTMLElement;
@@ -669,12 +1100,15 @@ async function sendMessage(userMessage: string) {
     if (currentSessionIndex === -1) return;
 
     welcomeScreen.style.display = 'none';
+    updateSuggestionsVisibility();
     
     appendMessage(userMessage, 'user');
     chatHistory[currentSessionIndex].messages.push({ sender: 'user', content: userMessage });
 
     if (chatHistory[currentSessionIndex].messages.length === 1) {
-        chatHistory[currentSessionIndex].title = userMessage.substring(0, 30) + (userMessage.length > 30 ? '...' : '');;
+        const newTitle = userMessage.substring(0, 30) + (userMessage.length > 30 ? '...' : '');
+        chatHistory[currentSessionIndex].title = newTitle;
+        headerTitle.textContent = newTitle;
     }
 
     saveHistory();
@@ -682,9 +1116,11 @@ async function sendMessage(userMessage: string) {
 
     submitButton.disabled = true;
     chatInput.value = '';
+    chatInput.placeholder = 'جارٍ التفكير...';
+    chatInput.readOnly = true;
     chatInput.style.height = 'auto';
-    chatInput.focus();
-
+    chatForm.classList.add('processing');
+    
     const aiMessageElement = appendMessage('loading', 'ai');
     
     try {
@@ -701,7 +1137,7 @@ async function sendMessage(userMessage: string) {
             fullResponseText += chunk.text;
             finalResponse = chunk;
             aiMessageElement.innerHTML = markdownToHtml(fullResponseText);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
         }
         
         if(fullResponseText) {
@@ -723,16 +1159,44 @@ async function sendMessage(userMessage: string) {
         aiMessageElement.innerHTML = markdownToHtml('**عذراً، حدث خطأ أثناء محاولة الحصول على إجابة. يرجى المحاولة مرة أخرى.**');
     } finally {
         submitButton.disabled = false;
+        chatInput.placeholder = 'اكتب سؤالك هنا...';
+        chatInput.readOnly = false;
         chatInput.focus();
+        chatForm.classList.remove('processing');
     }
 }
 
 // --- Encyclopedia Search (Dorar.net) ---
+function appendEncyclopediaResults(searchTerm: string, resultsHtml: string) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'message-wrapper ai-message encyclopedia-results-wrapper';
+    
+    const message = document.createElement('div');
+    message.className = 'message encyclopedia-results-message';
+
+    const header = document.createElement('h3');
+    header.className = 'encyclopedia-results-header';
+    header.textContent = `نتائج البحث عن: "${searchTerm}"`;
+    
+    const container = document.createElement('div');
+    container.className = 'encyclopedia-cards-container';
+    container.innerHTML = resultsHtml;
+    
+    message.appendChild(header);
+    message.appendChild(container);
+    wrapper.appendChild(message);
+    chatContainer.appendChild(wrapper);
+    chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+}
+
 async function searchEncyclopedia() {
     const searchTerm = encyclopediaSearchInput.value.trim();
-    if (!searchTerm) return;
-
-    encyclopediaResults.innerHTML = `<div class="dot-flashing-wrapper"><div class="dot-flashing"></div></div>`;
+    if (searchTerm.length < 3) {
+        encyclopediaResults.innerHTML = '';
+        return;
+    };
+    
+    encyclopediaResults.innerHTML = `<div class="dot-flashing-wrapper" style="padding: 0;"><div class="dot-flashing"></div></div>`;
 
     // The Dorar.net API does not support CORS, so we use a reliable public proxy.
     const apiUrl = `https://dorar.net/dorar_api.json?skey=${encodeURIComponent(searchTerm)}`;
@@ -753,13 +1217,41 @@ async function searchEncyclopedia() {
         }
 
         const data = JSON.parse(dorarResponseText);
-
-        encyclopediaResults.innerHTML = '';
+        
+        encyclopediaResults.innerHTML = ''; // Clear loader in sidebar
+        welcomeScreen.style.display = 'none'; // Show chat view
+        if (window.innerWidth <= 768) sidebar.classList.remove('open'); // Close sidebar on mobile
 
         if (data.ahadith && data.ahadith.result.trim() !== '' && data.ahadith.result.trim() !== '<div class="home-link"><a href="https://dorar.net">الرئيسية</a></div>') {
-            encyclopediaResults.innerHTML = data.ahadith.result;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data.ahadith.result, 'text/html');
+            const hadithElements = doc.querySelectorAll('.hadeeth');
+            let cardsHtml = '';
+
+            hadithElements.forEach(hadithEl => {
+                const hadithText = hadithEl.querySelector('.el_hadeeth_text')?.innerHTML || 'لا يوجد نص.';
+                const takhreej = hadithEl.querySelector('.takhreej')?.textContent || '';
+                const sharh = hadithEl.querySelector('.sharh')?.textContent || '';
+                const details = [takhreej, sharh].filter(Boolean).join('<br>');
+
+                const fullTextForPrompt = `${(hadithEl.querySelector('.el_hadeeth_text')?.textContent || '').trim()}\n\nالتخريج: ${takhreej.trim()}`;
+
+                cardsHtml += `
+                    <div class="hadith-card">
+                        <div class="hadith-card-content">${hadithText}</div>
+                        <div class="hadith-card-details">${details}</div>
+                        <div class="hadith-card-footer">
+                            <button class="add-hadith-to-chat" data-hadith-text="${fullTextForPrompt.replace(/"/g, '&quot;')}">
+                                إضافة للمحادثة وشرحه
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            appendEncyclopediaResults(searchTerm, cardsHtml);
+
         } else {
-            encyclopediaResults.innerHTML = `<p>لم يتم العثور على نتائج.</p>`;
+            appendEncyclopediaResults(searchTerm, `<p>لم يتم العثور على نتائج.</p>`);
         }
     } catch (error) {
         let message = 'يرجى المحاولة مرة أخرى.';
@@ -768,8 +1260,25 @@ async function searchEncyclopedia() {
         }
         
         console.error('Error fetching from Dorar.net via proxy:', error);
-        encyclopediaResults.innerHTML = `<p>حدث خطأ أثناء البحث. ${message}</p>`;
+        encyclopediaResults.innerHTML = `<p>حدث خطأ.</p>`; // Reset sidebar
+        appendEncyclopediaResults(searchTerm, `<p>حدث خطأ أثناء البحث. ${message}</p>`);
+    } finally {
+        encyclopediaSearchInput.value = ''; // Clear input after search
     }
+}
+
+// --- Utility Functions ---
+function debounce<T extends (...args: any[]) => void>(
+  func: T,
+  delay: number
+): (...args: Parameters<T>) => void {
+  let timeoutId: number | undefined;
+  return function(this: ThisParameterType<T>, ...args: Parameters<T>) {
+    clearTimeout(timeoutId);
+    timeoutId = window.setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
 }
 
 
@@ -845,6 +1354,15 @@ fontOptionButtons.forEach(button => {
 });
 
 
+// --- Settings Modal Logic ---
+function showSettingsModal() {
+    settingsModal.classList.add('visible');
+}
+function hideSettingsModal() {
+    settingsModal.classList.remove('visible');
+}
+
+
 // --- Event Listeners ---
 chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -856,10 +1374,40 @@ chatForm.addEventListener('submit', (e) => {
 
 suggestionButtons.forEach(button => {
     button.addEventListener('click', () => {
-        const question = button.textContent?.trim() || '';
-        if (question) sendMessage(question);
+        // Find the text content, handling different button structures
+        const textElement = button.querySelector('.featured-suggestion-text');
+        const question = (textElement || button).textContent?.trim() || '';
+        if (question) {
+            sendMessage(question);
+        }
     });
 });
+
+quickSuggestionsContainer.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains('suggestion-pill')) {
+        const question = target.textContent?.trim() || '';
+        if (question) {
+            sendMessage(question);
+        }
+    }
+});
+
+chatContainer.addEventListener('click', e => {
+    const target = e.target as HTMLElement;
+    const button = target.closest('.add-hadith-to-chat') as HTMLButtonElement | null;
+    if (button) {
+        const hadithText = button.dataset.hadithText;
+        if(hadithText) {
+            const prompt = `اشرح هذا الحديث:\n\n${hadithText}`;
+            sendMessage(prompt);
+            // Optionally disable the button after click
+            button.disabled = true;
+            button.textContent = 'تمت الإضافة...';
+        }
+    }
+});
+
 
 chatInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
@@ -869,45 +1417,28 @@ chatInput.addEventListener('keydown', (e) => {
 });
 
 newChatButton.addEventListener('click', createNewChat);
+headerShareButton.addEventListener('click', showShareModal);
+cancelShareBtn.addEventListener('click', hideShareModal);
+exportTxtBtn.addEventListener('click', handleExportAsTxt);
+exportMdBtn.addEventListener('click', handleExportAsMd);
+exportPdfBtn.addEventListener('click', handleFullChatExportAsPdf);
+exportImgBtn.addEventListener('click', handleFullChatExportAsImage);
 
-function startInspirationChat(prompt: string) {
-    createNewChat();
-    sendMessage(prompt);
-}
+headerSettingsButton.addEventListener('click', showSettingsModal);
+closeSettingsBtn.addEventListener('click', hideSettingsModal);
 
-const inspirationPrompts: { [key: number]: string } = {
-    0: "اخبرني عن قول من أقوال أهل العلم الحكيمة ذات الدلالات العميقة في فهم الدين التي ذكروها في كتبهم.",
-    1: "انصحني نصيحة إيمانية عميقة تركز على مسائل العقيدة، وما يجب على المسلم الموحد فعله أو اعتقاده بزمن الفتن، وخصص شيئاً من التركيز على مسائل الكفر بالطاغوت لتحقيق التوحيد (فتنة الحاكمية لغير الله)، بإيجاز.",
-    2: "اذكر لي صورة من قصص الصحابة تبرز مواقفهم من بطولات وشجاعة وإيمان وإيثار وحب لإخوانهم ومعاداة للكفار من كتب أهل العلم. وفي بداية كل قصة اذكر نبذة عن الصحابي مثل: مولده، إسلامه، لقبه إن وجد، ووفاته.",
-    3: "اذكر لي مشهداً من السيرة النبوية يصور حياة النبي صلى الله عليه وسلم في بيته، أو في الطريق، أو بين أصحابه، أو في الجهاد، أو في العبادة، أو في الأكل والنوم والضحك والحزن والغضب والسرور.",
-    4: "اذكر لي قصة صحيحة وردت في كتب السلف فيها عجب وخوارق للعادات للصحابة أو التابعين أو العباد."
-};
 
-promptSuggestionsToggleButton.addEventListener('click', (e) => {
-    e.stopPropagation();
-    promptSuggestionsPopup.classList.toggle('active');
+const debouncedEncyclopediaSearch = debounce(searchEncyclopedia, 400);
+
+encyclopediaSearchInput.addEventListener('input', () => {
+    const searchTerm = encyclopediaSearchInput.value.trim();
+    if (searchTerm.length > 2) {
+        encyclopediaResults.innerHTML = `<div class="dot-flashing-wrapper" style="padding:0;"><div class="dot-flashing"></div></div>`;
+        debouncedEncyclopediaSearch();
+    } else if (searchTerm.length === 0) {
+        encyclopediaResults.innerHTML = '';
+    }
 });
-
-popupSuggestionButtons.forEach((button, index) => {
-    button.addEventListener('click', () => {
-        const prompt = inspirationPrompts[index];
-        if (prompt) {
-            startInspirationChat(prompt);
-            promptSuggestionsPopup.classList.remove('active');
-        }
-    });
-});
-
-popupSuggestionTextButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        const question = button.textContent?.trim() || '';
-        if (question) {
-            sendMessage(question);
-            promptSuggestionsPopup.classList.remove('active');
-        }
-    });
-});
-
 
 encyclopediaSearchForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -919,33 +1450,40 @@ confirmDeleteBtn.addEventListener('click', handleDeleteChat);
 
 // Global click listener to close popups
 document.addEventListener('click', (e) => {
+    const target = e.target as Node;
+
     // Close history dropdowns
     document.querySelectorAll('.history-item-menu-dropdown.visible').forEach(dropdown => {
-        if (!dropdown.parentElement?.contains(e.target as Node)) {
+        if (!dropdown.parentElement?.contains(target)) {
             dropdown.classList.remove('visible');
         }
     });
 
     // Close share menus
     document.querySelectorAll('.share-menu.visible').forEach(menu => {
-        if (!menu.parentElement?.contains(e.target as Node)) {
+        if (!menu.parentElement?.contains(target)) {
             menu.classList.remove('visible');
         }
     });
 
     // Close font selector popup
-    if (!fontSelectorPopup.contains(e.target as Node) && !fontSelectorToggle.contains(e.target as Node)) {
+    if (!fontSelectorPopup.contains(target) && !fontSelectorToggle.contains(target)) {
         fontSelectorPopup.classList.remove('active');
     }
 
-    // Close prompt suggestions popup
-    if (!promptSuggestionsPopup.contains(e.target as Node) && !promptSuggestionsToggleButton.contains(e.target as Node)) {
-        promptSuggestionsPopup.classList.remove('active');
-    }
-
     // Close mobile sidebar
-    if (sidebar.classList.contains('open') && !sidebar.contains(e.target as Node) && !menuToggleButton.contains(e.target as Node)) {
+    if (sidebar.classList.contains('open') && !sidebar.contains(target) && !menuToggleButton.contains(target)) {
         sidebar.classList.remove('open');
+    }
+    
+    // Close share modal if clicking outside
+    if (shareChatModal.classList.contains('visible') && shareChatModal === target) {
+        hideShareModal();
+    }
+    
+    // Close settings modal if clicking outside
+    if (settingsModal.classList.contains('visible') && settingsModal === target) {
+        hideSettingsModal();
     }
 });
 

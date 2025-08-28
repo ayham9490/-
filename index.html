@@ -25,75 +25,52 @@
     <div id="app-layout">
       <aside id="sidebar">
         <div class="sidebar-header">
-          <button id="new-chat-button" class="sidebar-button">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1Z" clip-rule="evenodd" /></svg>
-            <span>محادثة جديدة</span>
-          </button>
+            <button id="new-chat-button" class="sidebar-button">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1Z" clip-rule="evenodd" /></svg>
+              <span>محادثة جديدة</span>
+            </button>
           <button id="sidebar-toggle" class="sidebar-button icon-button" aria-label="طي اللوحة الجانبية">
              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="icon-collapse"><path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M11.53 5.47a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 1 1-1.06-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M6.22 13.47a.75.75 0 0 1 1.06 0l4.25-4.25a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0Z" clip-rule="evenodd" /></svg>
              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="icon-expand"><path fill-rule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.75a.75.75 0 0 1 0-1.5h10.5A.75.75 0 0 1 17 10Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M8.47 14.53a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M13.78 6.53a.75.75 0 0 1-1.06 0L8.47 10.78a.75.75 0 1 1-1.06-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" /></svg>
           </button>
         </div>
-        <div class="sidebar-content">
-           <div class="sidebar-section">
-              <details class="history-category" open>
-                <summary class="history-category-title">الموسوعة الحديثية</summary>
-                <div class="sidebar-encyclopedia-content">
-                  <form id="encyclopedia-search-form" class="sidebar-form">
-                    <div class="encyclopedia-search-input-wrapper">
-                      <input type="text" id="encyclopedia-search-input" placeholder="ابحث في الدرر السنية...">
-                      <button type="submit" id="encyclopedia-search-button" aria-label="بحث">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd"></path></svg>
-                      </button>
-                    </div>
-                  </form>
-                  <div id="encyclopedia-results-container">
-                    <div id="encyclopedia-results"></div>
-                  </div>
-                </div>
-              </details>
+
+        <div class="sidebar-tabs">
+            <button class="sidebar-tab active" data-tab="history">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 5.5A2.5 2.5 0 0 1 4.5 3h11A2.5 2.5 0 0 1 18 5.5v2.523c0 .414-.123.815-.353 1.156l-3.9 5.852c-.443.664-1.2.969-2.022.868a22.3 22.3 0 0 1-4.049-.608 1.5 1.5 0 0 0-1.286.052c-.375.176-.701.42-1.002.716l-.304.303a1.5 1.5 0 0 1-2.122-2.121l.304-.303c.334-.334.58-.72.748-1.14.23-.57.23-1.217 0-1.787a22.3 22.3 0 0 1-.608-4.049c-.1-1.27.56-2.4 1.586-2.79l.1-.029ZM10 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" clip-rule="evenodd" /></svg>
+                <span>السجل</span>
+            </button>
+            <button class="sidebar-tab" data-tab="encyclopedia">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" /><path fill-rule="evenodd" d="M9.458 1.414a.75.75 0 0 1 .09 1.056l-.08.118A4.98 4.98 0 0 0 5.5 6.51V10H2.25a.75.75 0 0 0 0 1.5H5.5v3.49a4.98 4.98 0 0 0 3.968 3.922l.118.08a.75.75 0 1 1-.864 1.152l-.118-.08a6.48 6.48 0 0 1-5.154-5.072v-3.5h-2.25a.75.75 0 0 1 0-1.5h2.25V6.51c0-2.33 1.556-4.322 3.731-4.939l.118-.08a.75.75 0 0 1 1.056.124Zm1.084 14.172a.75.75 0 1 1-.864-1.152l.118.08a4.98 4.98 0 0 0 5.154-3.922V11.5h3.25a.75.75 0 0 0 0-1.5H14.5V6.51a4.98 4.98 0 0 0-3.968-3.922l-.118-.08a.75.75 0 1 1 .864-1.152l.118.08A6.48 6.48 0 0 1 16.5 6.51v3.5h2.25a.75.75 0 0 1 0 1.5H16.5v3.49a6.48 6.48 0 0 1-5.154 5.072l-.118.08a.75.75 0 0 1-1.056-.124l-.08-.118Z" clip-rule="evenodd" /></svg>
+                <span>الموسوعة</span>
+            </button>
+        </div>
+
+        <div class="sidebar-tab-content">
+            <div class="tab-panel active" id="history-panel">
+                <nav id="chat-history" class="sidebar-section">
+                    <p class="history-title">السجل</p>
+                    <div id="history-list-container"></div>
+                </nav>
             </div>
-           <div class="sidebar-section">
-                <p class="history-title">إعدادات</p>
-                <div id="font-controls-container">
-                    <div class="font-control-group">
-                        <span class="font-control-label">حجم الخط</span>
-                        <div id="font-size-control">
-                            <button id="decrease-font" aria-label="تصغير الخط">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M6.5 9.25a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7Z" /></svg>
-                            </button>
-                            <span class="font-size-indicator">A</span>
-                            <button id="increase-font" aria-label="تكبير الخط">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 5.75a.75.75 0 0 1 .75.75v3h3a.75.75 0 0 1 0 1.5h-3v3a.75.75 0 0 1-1.5 0v-3h-3a.75.75 0 0 1 0-1.5h3v-3A.75.75 0 0 1 10 5.75Z" /></svg>
+            <div class="tab-panel" id="encyclopedia-panel">
+                 <div class="sidebar-section">
+                    <p class="history-title">الموسوعة الحديثية</p>
+                    <div class="sidebar-encyclopedia-content">
+                        <form id="encyclopedia-search-form" class="sidebar-form">
+                        <div class="encyclopedia-search-input-wrapper">
+                            <input type="text" id="encyclopedia-search-input" placeholder="ابحث في الدرر السنية...">
+                            <button type="submit" id="encyclopedia-search-button" aria-label="بحث">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd"></path></svg>
                             </button>
                         </div>
-                    </div>
-                    <div class="font-control-group">
-                        <span class="font-control-label">نوع الخط</span>
-                        <div id="font-selector-wrapper">
-                          <button id="font-selector-toggle" aria-label="تغيير الخط">
-                            <span>اختر خطاً</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>
-                          </button>
-                          <div id="font-selector-popup">
-                              <button class="font-option-button" data-font="'Aref Ruqaa', serif" style="font-family: 'Aref Ruqaa', serif;">خط رقاع</button>
-                              <button class="font-option-button" data-font="'Cairo', sans-serif" style="font-family: 'Cairo', sans-serif;">خط كايرو</button>
-                              <button class="font-option-button" data-font="'Amiri', serif" style="font-family: 'Amiri', serif;">خط أميري</button>
-                              <button class="font-option-button" data-font="'Tajawal', sans-serif" style="font-family: 'Tajawal', sans-serif;">خط تجوال</button>
-                              <button class="font-option-button" data-font="'Noto Sans Arabic', sans-serif" style="font-family: 'Noto Sans Arabic', sans-serif;">خط نوتو</button>
-                          </div>
+                        </form>
+                        <div id="encyclopedia-results-container">
+                        <div id="encyclopedia-results"></div>
                         </div>
                     </div>
                 </div>
             </div>
-           <div class="sidebar-section" id="user-profile-section">
-              <p class="history-title">التعرف</p>
-              <input type="text" id="user-name-input" placeholder="اكتب اسمك هنا...">
-           </div>
-           <nav id="chat-history" class="sidebar-section">
-            <p class="history-title">السجل</p>
-            <div id="history-list-container"></div>
-           </nav>
         </div>
       </aside>
 
@@ -103,11 +80,15 @@
             <button id="menu-toggle" aria-label="فتح القائمة">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M3 6.75A.75.75 0 013.75 6h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 6.75zM3 12a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 013 12zm0 5.25a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75A.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg>
             </button>
-            <div class="header-content">
-              <div class="header-text">
-                <h1>القيم</h1>
-              </div>
+            <div id="header-title-container">
+                <h1 id="header-title">القيم</h1>
             </div>
+            <button id="header-settings-button" class="icon-button header-action-button" aria-label="الإعدادات">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 0 1-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 0 1 .947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 0 1 2.287.947c.379 1.561 2.6 1.561 2.978 0a1.532 1.532 0 0 1 2.287-.947c1.372.836 2.942-.734 2.106-2.106a1.532 1.532 0 0 1-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 0 1-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 0 1-2.287-.947ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd" /></svg>
+            </button>
+            <button id="header-share-button" class="icon-button header-action-button" aria-label="مشاركة المحادثة">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M13 4.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM8.5 6a3.5 3.5 0 1 0-3.18-5.223.75.75 0 0 1 1.25-.666A5.002 5.002 0 0 1 14.5 6H16a1 1 0 0 1 1 1v1.5a.75.75 0 0 1-1.5 0V8h-1.5A3.5 3.5 0 0 0 8.5 6ZM5 7.5a1 1 0 0 0-1-1H2.5a.75.75 0 0 0 0 1.5H4a1 1 0 0 0 1-1ZM1.13 8.87A.75.75 0 0 1 1.87 8l.223.223A3.5 3.5 0 0 0 5 11.5a.75.75 0 0 1 1.5 0 5.002 5.002 0 0 1-6.223-3.18.75.75 0 0 1 .853-1.077Z" /><path d="m11.166 11.897.108.016a5.002 5.002 0 0 1 4.59 4.31 1.001 1.001 0 0 0 .984.877h.016a1 1 0 0 0 .984-.877 6.502 6.502 0 0 0-6.052-5.63l-.159-.026a.75.75 0 0 0-.74.821l.325 1.523a.75.75 0 0 0 1.438-.306l-.21- .983Z" /></svg>
+            </button>
           </header>
           <main id="chat-container">
             <!-- Messages will be appended here -->
@@ -116,56 +97,27 @@
                     <h1>القيم</h1>
                     <p>السلام عليكم ورحمة الله وبركاته. أنا مساعدك لاستكشاف القيم الإسلامية الأصيلة في ضوء الكتاب والسنة بفهم سلف الأمة. كيف يمكنني مساعدتك اليوم؟</p>
                 </div>
-                <div class="suggestions">
-                    <button class="suggestion-card">ما هو التوحيد وما هي أقسامه؟</button>
-                    <button class="suggestion-card">ما حكم ترك الصلاة؟</button>
-                    <button class="suggestion-card">اشرح أركان الإيمان</button>
-                    <button class="suggestion-card">ما حكم الاحتفال بالمولد النبوي؟</button>
+                <div class="suggestions-container">
+                    <button class="featured-suggestion suggestion-button">
+                        <div class="featured-suggestion-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.378 1.602a.75.75 0 0 0-.756 0L3 7.232l9 6.25 9-6.25-8.622-5.63ZM21 9.232l-9 6.25-9-6.25v7.532a2.25 2.25 0 0 0 2.25 2.25h13.5A2.25 2.25 0 0 0 21 16.764V9.232Z" /></svg>
+                        </div>
+                        <span class="featured-suggestion-text">ما هو التوحيد؟</span>
+                    </button>
+                    <div class="secondary-suggestions">
+                        <button class="suggestion-pill-button suggestion-button">نصيحة لزيادة الإيمان</button>
+                        <button class="suggestion-pill-button suggestion-button">قصة عن أحد الصحابة</button>
+                        <button class="suggestion-pill-button suggestion-button">ما حكم ترك الصلاة؟</button>
+                    </div>
                 </div>
             </div>
           </main>
           <footer>
+             <div id="quick-suggestions-container">
+                <!-- Suggestions will be dynamically inserted here -->
+            </div>
             <form id="chat-form">
                 <div class="input-container">
-                    <div id="prompt-suggestions-popup">
-                        <div class="popup-section">
-                           <h3 class="popup-section-title">أسئلة للبدء</h3>
-                           <div class="popup-grid grid-cols-2">
-                               <button class="popup-suggestion-text-button">ما هو التوحيد وما هي أقسامه؟</button>
-                               <button class="popup-suggestion-text-button">ما حكم ترك الصلاة؟</button>
-                               <button class="popup-suggestion-text-button">اشرح أركان الإيمان</button>
-                               <button class="popup-suggestion-text-button">ما حكم الاحتفال بالمولد النبوي؟</button>
-                           </div>
-                        </div>
-                        <div class="popup-section">
-                           <h3 class="popup-section-title">إلهام</h3>
-                           <div class="popup-grid grid-cols-3">
-                               <button class="popup-suggestion-button">
-                                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 3.5a.75.75 0 0 0-1.5 0V5h-2a.75.75 0 0 0 0 1.5h2v1.25a.75.75 0 0 0 1.5 0V6.5h2a.75.75 0 0 0 0-1.5h-2V3.5Z" /><path fill-rule="evenodd" d="M3.25 5.5A2.25 2.25 0 0 0 1 7.75v6.5A2.25 2.25 0 0 0 3.25 16.5h13.5A2.25 2.25 0 0 0 19 14.25v-6.5A2.25 2.25 0 0 0 16.75 5.5H3.25Zm1.5 2.75a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5H5.5a.75.75 0 0 1-.75-.75Zm.75 3.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5h-6Z" clip-rule="evenodd" /></svg>
-                                   <span>قول من اقوال اهل العلم</span>
-                               </button>
-                               <button class="popup-suggestion-button">
-                                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm-.75-4.75a.75.75 0 0 0 1.5 0V8.5a.75.75 0 0 0-1.5 0v4.75ZM10 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" /></svg>
-                                   <span>انصحني نصيحة</span>
-                               </button>
-                               <button class="popup-suggestion-button">
-                                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3.5 3.75a.25.25 0 0 1 .25-.25h12.5a.25.25 0 0 1 .25.25v12.5a.25.25 0 0 1-.25-.25H3.75a.25.25 0 0 1-.25-.25V3.75ZM4.5 15.5h11V4.5h-11v11Z" /><path d="M6.637 12.043a.75.75 0 0 1 .63.961 3.003 3.003 0 0 0 5.465 0 .75.75 0 1 1 1.26.802 4.503 4.503 0 0 1-8.192 0 .75.75 0 0 1 .837-.961ZM8.5 7.5A.5.5 0 0 1 9 7h2a.5.5 0 0 1 0 1H9a.5.5 0 0 1-.5-.5Z" /></svg>
-                                   <span>صورة من قصص الصحابة</span>
-                               </button>
-                               <button class="popup-suggestion-button">
-                                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="m3.188 12.143 1.504 1.504a.75.75 0 0 0 1.06 0l2.255-2.254a.75.75 0 1 0-1.06-1.06L5.44 11.84l-1.19-1.19a.75.75 0 0 0-1.062 1.06Z" /><path d="M15.5 3.5a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3.5ZM14 16.5H6a.5.5 0 0 1 0-1h8a.5.5 0 0 1 0 1Z" /></svg>
-                                   <span>مشهد من سيرة النبي العطرة</span>
-                               </button>
-                               <button class="popup-suggestion-button">
-                                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.868 2.884c.321.023.635.096.932.223l.112.047c.367.155.695.362.98.618l.01.008c.433.385.765.84.99 1.347l.01.022c.33.71.495 1.49.495 2.311V10a7 7 0 1 1-14 0V7.5c0-1.256.333-2.433.918-3.482l.024-.044c.37-.668.86-1.246 1.432-1.724l.04-.033c.365-.307.765-.548 1.18-.72l.048-.02c.42-.173.865-.286 1.324-.335l.092-.008c.327-.023.66-.023 1 0Zm-1.303.665c-.24.01-.475.05-.702.115l-.06.017c-.328.09-.64.23-.926.41l-.034.022c-.4.26-.75.59-1.033.97l-.02.027c-.42.56-.73 1.25-.89 2.01l-.014.065c-.2.9-.3 1.88-.3 2.89V10a6 6 0 1 0 12 0V7.5c0-.77-.15-1.5-.44-2.18l-.01-.023c-.22-.48-.53-.91-.91-1.27l-.01-.008c-.27-.24-.58-.44-.92-.59l-.11-.047c-.28-.12-.58-.19-.88-.21l-.09-.008c-.24-.01-.48-.01-.72 0Z" clip-rule="evenodd" /></svg>
-                                   <span>عجائب العُبّاد</span>
-                               </button>
-                           </div>
-                       </div>
-                    </div>
-                    <button type="button" id="prompt-suggestions-toggle" aria-label="أسئلة مقترحة">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1Z" clip-rule="evenodd" /></svg>
-                    </button>
                     <textarea
                         id="chat-input"
                         placeholder="اكتب سؤالك هنا..."
@@ -204,7 +156,7 @@
         </div>
         <div class="message-actions">
           <button class="copy-button" aria-label="نسخ النص">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a1.5 1.5 0 0 0-.44-1.06L9.94 6.439A1.5 1.5 0 0 0 8.5 6.879V14h-1A1.5 1.5 0 0 1 6 12.5v-9z"/><path d="M5 6.5A1.5 1.5 0 0 1 6.5 5h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 15 9.622V16.5A1.5 1.5 0 0 1 13.5 18h-7A1.5 1.5 0 0 1 5 16.5v-10z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a1.5 1.5 0 0 0-.44-1.06L9.94 6.439A1.5 1.5 0 0 0 8.5 6.879V14h-1A1.5 1.5 0 0 1 6 12.5v-9zM5 6.5A1.5 1.5 0 0 1 6.5 5h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 15 9.622V16.5A1.5 1.5 0 0 1 13.5 18h-7A1.5 1.5 0 0 1 5 16.5v-10z"></path></svg>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="display: none;"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143Z" clip-rule="evenodd" /></svg>
           </button>
           <div class="share-wrapper">
@@ -241,6 +193,107 @@
         </div>
       </div>
     </div>
+
+    <!-- Share Chat Modal -->
+    <div id="share-chat-modal" class="modal-overlay">
+      <div class="modal-content">
+        <h3>مشاركة أو تصدير المحادثة</h3>
+        <p>اختر التنسيق الذي تفضله لتصدير سجل المحادثة الحالي.</p>
+        <div class="share-options">
+            <button id="export-txt-btn" class="share-option-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A.75.75 0 0 1 2.75 4h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 4.75ZM2 10a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 10Zm0 5.25a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" /></svg>
+                <span>ملف نصي (.txt)</span>
+            </button>
+            <button id="export-md-btn" class="share-option-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M2.5 4A1.5 1.5 0 0 0 1 5.5v9A1.5 1.5 0 0 0 2.5 16h15A1.5 1.5 0 0 0 19 14.5v-9A1.5 1.5 0 0 0 17.5 4h-15ZM3.25 5.5h13.5a.25.25 0 0 1 .25.25v8.5a.25.25 0 0 1-.25.25H3.25a.25.25 0 0 1-.25-.25V5.75a.25.25 0 0 1 .25-.25Z" /><path d="M6.25 8a.75.75 0 0 0-1.5 0v4a.75.75 0 0 0 1.5 0V8ZM9 9.5a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5H10v.75l.625.625a.75.75 0 1 1-1.06 1.06L9 12.44V9.5Zm4.5-1.75a.75.75 0 0 0-1.5 0v4a.75.75 0 0 0 1.5 0V8.25a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 0 0 1h1.5V12a.75.75 0 0 0 1.5 0V7.75Z" /></svg>
+                <span>ملف ماركداون (.md)</span>
+            </button>
+            <button id="export-pdf-btn" class="share-option-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V7.621a1.5 1.5 0 0 0-.44-1.06l-4.12-4.122A1.5 1.5 0 0 0 11.378 2H4.5ZM10 8a.75.75 0 0 1 .75.75v1.5h1.5a.75.75 0 0 1 0 1.5h-1.5v1.5a.75.75 0 0 1-1.5 0v-1.5h-1.5a.75.75 0 0 1 0-1.5h1.5v-1.5A.75.75 0 0 1 10 8Z" clip-rule="evenodd" /></svg>
+                <span>مستند PDF</span>
+            </button>
+             <button id="export-img-btn" class="share-option-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M9.43 5.342a.75.75 0 0 1 .09 1.056l-2.09 3.032a.75.75 0 0 0 .94.165l2.64-1.467a.75.75 0 0 1 .958.077l2.132 2.132a.75.75 0 0 0 1.06 0l2.228-2.228a.75.75 0 1 0-1.06-1.06l-1.74 1.74-1.64-1.64a2.25 2.25 0 0 0-3.182-.23L7.158 8.45a2.25 2.25 0 0 0-.27 3.12l-1.29 1.87a.75.75 0 0 1-1.11.026l-.002-.002a.75.75 0 0 1 .028-1.11l1.29-1.87a.75.75 0 0 0 .09-.72L4.32 6.4a.75.75 0 0 1 1.056-.09l.86.655.204-.336Z" /><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V3.5A1.5 1.5 0 0 0 15.5 2h-11ZM4.5 3.5h11V15H8.75a.75.75 0 0 1-.75-.75V9.355a.75.75 0 0 0-1.5 0v4.895A2.25 2.25 0 0 0 8.75 16.5H15.5a.5.5 0 0 1 .5-.5V3.5a.5.5 0 0 0-.5-.5h-11a.5.5 0 0 0-.5.5v12a.5.5 0 0 1-.5.5h-.75a.75.75 0 0 1-.75-.75V3.5Z" clip-rule="evenodd" /></svg>
+                <span>تصدير كصورة (.png)</span>
+            </button>
+        </div>
+        <div class="modal-actions">
+          <button id="cancel-share-btn" class="modal-button secondary">إلغاء</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="image-preview-modal" class="modal-overlay">
+      <div class="modal-content">
+        <h3>معاينة الصورة</h3>
+        <div class="modal-loader">
+          <div class="mini-loader"></div>
+          <p>جاري إنشاء الصورة...</p>
+        </div>
+        <div class="image-preview-container">
+          <img id="preview-image-tag" src="" alt="معاينة الصورة" />
+        </div>
+        <div class="modal-actions">
+          <button id="download-preview-btn" class="modal-button secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" /><path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" /></svg>
+            <span>تنزيل</span>
+          </button>
+          <button id="share-preview-btn" class="modal-button secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M13 4.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM8.5 6a3.5 3.5 0 1 0-3.18-5.223.75.75 0 0 1 1.25-.666A5.002 5.002 0 0 1 14.5 6H16a1 1 0 0 1 1 1v1.5a.75.75 0 0 1-1.5 0V8h-1.5A3.5 3.5 0 0 0 8.5 6ZM5 7.5a1 1 0 0 0-1-1H2.5a.75.75 0 0 0 0 1.5H4a1 1 0 0 0 1-1ZM1.13 8.87A.75.75 0 0 1 1.87 8l.223.223A3.5 3.5 0 0 0 5 11.5a.75.75 0 0 1 1.5 0 5.002 5.002 0 0 1-6.223-3.18.75.75 0 0 1 .853-1.077Z" /><path d="m11.166 11.897.108.016a5.002 5.002 0 0 1 4.59 4.31 1.001 1.001 0 0 0 .984.877h.016a1 1 0 0 0 .984-.877 6.502 6.502 0 0 0-6.052-5.63l-.159-.026a.75.75 0 0 0-.74.821l.325 1.523a.75.75 0 0 0 1.438-.306l-.21- .983Z" /></svg>
+            <span>مشاركة</span>
+          </button>
+          <button id="close-preview-btn" class="modal-button secondary">إغلاق</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>الإعدادات</h3>
+          <button id="close-settings-btn" class="modal-close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="user-profile-section">
+            <span class="font-control-label">التعرف</span>
+            <input type="text" id="user-name-input" placeholder="اكتب اسمك هنا...">
+          </div>
+          <div id="font-controls-container">
+            <div class="font-control-group">
+              <span class="font-control-label">حجم الخط</span>
+              <div id="font-size-control">
+                <button id="decrease-font" aria-label="تصغير الخط">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M6.5 9.25a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7Z" /></svg>
+                </button>
+                <span class="font-size-indicator">A</span>
+                <button id="increase-font" aria-label="تكبير الخط">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 5.75a.75.75 0 0 1 .75.75v3h3a.75.75 0 0 1 0 1.5h-3v3a.75.75 0 0 1-1.5 0v-3h-3a.75.75 0 0 1 0-1.5h3v-3A.75.75 0 0 1 10 5.75Z" /></svg>
+                </button>
+              </div>
+            </div>
+            <div class="font-control-group">
+              <span class="font-control-label">نوع الخط</span>
+              <div id="font-selector-wrapper">
+                <button id="font-selector-toggle" aria-label="تغيير الخط">
+                  <span>اختر خطاً</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px;" viewBox="0 0 384 512" fill="currentColor"><path d="M224 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h16v32H160v-32c0-17.7-14.3-32-32-32s-32 14.3-32 32v32h-1.6C78.4 96 64 110.4 64 128v32c0 17.7 14.3 32 32 32h1.6V416H80c-17.7 0-32 14.3-32 32s14.3 32 32 32h224c17.7 0 32-14.3 32-32s-14.3-32-32-32h-16V192h1.6c17.7 0 32-14.3 32-32v-32c0-17.7-14.3-32-32-32h-1.6V64h16c17.7 0 32-14.3 32-32s-14.3-32-32-32H224zM160 160h64v256h-64V160z"/></svg>
+                </button>
+                <div id="font-selector-popup">
+                  <button class="font-option-button" data-font="'Aref Ruqaa', serif" style="font-family: 'Aref Ruqaa', serif;">خط رقاع</button>
+                  <button class="font-option-button" data-font="'Cairo', sans-serif" style="font-family: 'Cairo', sans-serif;">خط كايرو</button>
+                  <button class="font-option-button" data-font="'Amiri', serif" style="font-family: 'Amiri', serif;">خط أميري</button>
+                  <button class="font-option-button" data-font="'Tajawal', sans-serif" style="font-family: 'Tajawal', sans-serif;">خط تجوال</button>
+                  <button class="font-option-button" data-font="'Noto Sans Arabic', sans-serif" style="font-family: 'Noto Sans Arabic', sans-serif;">خط نوتو</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <script type="module" src="index.tsx"></script>
   </body>
